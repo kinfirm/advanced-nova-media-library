@@ -214,7 +214,6 @@ class Media extends Field
 
     private function addNewMedia(NovaRequest $request, $data, HasMedia $model, string $collection): Collection
     {
-
         return collect($data)
             ->filter(function ($value) {
                 // New files will come in as UploadedFile objects,
@@ -223,13 +222,10 @@ class Media extends Field
             })->map(function ($file, int $index) use ($request, $model, $collection) {
                 if ($file instanceof UploadedFile) {
                     $media = $model->addMedia($file)->withCustomProperties($this->customProperties);
-
                     $fileName = $file->getClientOriginalName();
                     $fileExtension = $file->getClientOriginalExtension();
-
                 } else {
                     $media = $this->makeMediaFromVaporUpload($file, $model);
-
                     $fileName = $file['file_name'];
                     $fileExtension = pathinfo($file['file_name'], PATHINFO_EXTENSION);
                 }
@@ -268,8 +264,8 @@ class Media extends Field
         $remainingIds = collect($data)->filter(function ($value) {
             // New files will come in as UploadedFile objects,
             // whereas Vapor-uploaded files will come in as arrays.
-            return !$value instanceof UploadedFile
-                && !is_array($value);
+            return ! $value instanceof UploadedFile
+            && ! is_array($value);
         });
 
         $medias->pluck('id')->diff($remainingIds)->each(function ($id) use ($medias) {
@@ -384,12 +380,9 @@ class Media extends Field
      */
     private function makeMediaFromVaporUpload(array $file, HasMedia $model): FileAdder
     {
-        $disk = config('filesystems.default');
-
-        $disk = config('filesystems.disks.' . $disk . 'driver') === 's3' ? $disk : 's3';
-
+        $diskName = config('filesystems.default');
+        $disk = config('filesystems.disks.' . $diskName . 'driver') === 's3' ? $diskName : 's3';
         $url = Storage::disk($disk)->temporaryUrl($file['key'], Carbon::now()->addHour());
-
         return $model->addMediaFromUrl($url)
             ->usingFilename($file['file_name']);
     }
