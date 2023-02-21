@@ -7,6 +7,7 @@
     }"
   >
     <span class="text-bold px-3 truncate">
+      <span class="pr-2" v-if="image.custom_properties.language">{{ image.custom_properties.language }}:</span>
       {{ image.file_name }}
     </span>
 
